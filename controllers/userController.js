@@ -199,12 +199,21 @@ exports.login = async (req, res) => {
             });
         }
 
+        const getUserPermission = await pool.query(
+            "SELECT p.id, p.name FROM permission p INNER JOIN role_permission rp ON p.id = rp.permission_id INNER JOIN role r ON r.id = rp.role_id WHERE r.name = ?",
+            [user.role]
+        );
+
+        const userPermission = getUserPermission[0].map((p) => p.name);
+
         const token = signToken({ id: user.id });
 
         res.status(200).json({
             status: "success",
             message: "เข้าสู่ระบบสำเร็จ",
             token: token,
+            role: user.role,
+            permission: userPermission,
         });
     } catch (error) {
         res.status(500).json({

@@ -12,11 +12,11 @@ exports.signToken = (data) => {
 
     try {
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRES_IN,
+            expiresIn: "24h",
         });
         return token;
     } catch (error) {
-        throw new Error("เกิดข้อผิดพลาดในการสร้าง token");
+        throw new Error("เกิดข้อผิดพลาดในการสร้าง token" + error);
     }
 };
 
@@ -30,6 +30,6 @@ exports.verifyToken = (token) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         return decoded;
     } catch (error) {
-        throw new Error("เกิดข้อผิดพลาดในการตรวจสอบ token");
+        throw new Error("เกิดข้อผิดพลาดในการตรวจสอบ token" + error);
     }
 };

@@ -7,39 +7,45 @@ const pool = require("../config/database");
  * @param {object} res - คำตอบ HTTP
  * @param {function} next - ฟังก์ชันต่อไป
  */
-exports.checkPermission = async (req, res, next) => {
-    try {
-        const token = req.headers.authorization;
+exports.checkPermission =
+    (...permissions) =>
+    async (req, res, next) => {
+        try {
+            const user = req.user[0][0];
 
-        if (!token) {
-            return res.status(401).json({ message: "ไม่มี token" });
-        }
+            //get permission
+            const permissionName = await pool.query(
+                "SELECT p.id, p.name FROM permission p INNER JOIN role_permission rp ON p.id = rp.permission_id INNER JOIN role r ON r.id = rp.role_id WHERE r.name = ?",
+                [user.role]
+            );
 
-        const decoded = verifyToken.verifyToken(token);
+            //check permission
+            const userPermissions = permissionName[0].map((p) => p.name);
+            const hasPermission = permissions.some((p) =>
+                userPermissions.includes(p)
+            );
 
-        const [user] = await pool.query("SELECT * FROM users WHERE id = ?", [
-            decoded.id,
-        ]);
+            if (!hasPermission) {
+                return res
+                    .status(403)
+                    .json({ message: "ไม่มีสิทธิ์ในการเข้าถึง" });
+            }
 
-        if (!user) {
-            return res.status(401).json({ message: "ไม่พบผู้ใช้งาน" });
-        }
-
-        // ตรวจสอบ role ของผู้ใช้
-        if (req.originalUrl.startsWith("/users") && user[0].role !== "user") {
-            return res.status(403).json({
+            next();
+        } catch (error) {
+            res.status(500).json({
                 status: "error",
-                message: "คุณไม่มีสิทธิ์เข้าถึงส่วนนี้",
+                message: "เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์",
+                error: error.message,
             });
         }
+    };
 
-        req.user = user;
+exports.authorize = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
         next();
-    } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์",
-            error: error.message,
-        });
-    }
+    };
 };
