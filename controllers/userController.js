@@ -1,7 +1,12 @@
 const { encryptPassword, comparePassword } = require("../utils/passwordUtils");
 const { signToken } = require("../utils/jwtService");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-const pool = require("../config/database");
+// ... existing code ...
+
+//old
+// const pool = require("../config/database");
 
 // get all users
 //@route GET /users
@@ -9,9 +14,14 @@ const pool = require("../config/database");
 exports.getAllUsers = async (req, res) => {
     try {
         // ดึงข้อมูลผู้ใช้ทั้งหมดจากฐานข้อมูล
-        const [users] = await pool.query(
-            "SELECT id, name, email, role FROM users"
-        );
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+            },
+        });
 
         // ส่ง response กลับ
         res.status(200).json({
@@ -39,23 +49,27 @@ exports.createUser = async (req, res) => {
         const hashedPassword = await encryptPassword(password);
 
         // ตรวจสอบอีเมลซ้ำ
-        const checkEmail = await pool.query(
-            "SELECT * FROM users WHERE email = ?",
-            [email]
-        );
+        const checkEmail = await prisma.user.findUnique({
+            where: { email },
+        });
 
-        if (checkEmail[0].length > 0) {
+        if (checkEmail) {
             return res
                 .status(400)
                 .json({ message: "Email นี้มีอยู่ในระบบแล้ว" });
         }
 
         // เพิ่มผู้ใช้ใหม่
-        const [result] = await pool.query(
-            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-            [name, email, hashedPassword]
-        );
+        const newUser = await prisma.user.create({
+            data: {
+                name: name,
+                email: email,
+                password: hashedPassword,
+                role: "user",
+            },
+        });
 
+        console.log(newUser);
         // ส่ง response กลับ
         res.status(201).json({
             status: "success",
@@ -83,49 +97,28 @@ exports.updateUser = async (req, res) => {
         const { name, email, role } = req.body;
 
         // ตรวจสอบว่ามีผู้ใช้อยู่จริงหรือไม่
-        const userExists = await pool.query(
-            "SELECT * FROM users WHERE id = ?",
-            [id]
-        );
+        const userExists = await prisma.user.findUnique({
+            where: { id: parseInt(id) },
+        });
 
-        if (userExists[0].length === 0) {
+        if (!userExists) {
             return res.status(404).json({ message: "ไม่พบผู้ใช้งาน" });
         }
 
-        //check data for update fields
-        let updateFields = [];
-        let updateValues = [];
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (email !== undefined) updateData.email = email;
+        if (role !== undefined) updateData.role = role;
 
-        if (name !== undefined) {
-            updateFields.push("name = ?");
-            updateValues.push(name);
-        }
-        if (email !== undefined) {
-            updateFields.push("email = ?");
-            updateValues.push(email);
-        }
-        if (role !== undefined) {
-            updateFields.push("role = ?");
-            updateValues.push(role);
-        }
-
-        // ถ้าไม่มีฟิลด์ที่จะอัพเดต
-        if (updateFields.length === 0) {
-            return res.status(400).json({ message: "ไม่มีการอัพเดตข้อมูล" });
-        }
-
-        // เพิ่ม id เข้าไปใน parameters
-        updateValues.push(id);
-
-        const [result] = await pool.query(
-            `UPDATE users SET ${updateFields.join(", ")} WHERE id = ?`,
-            updateValues
-        );
+        const updatedUser = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: updateData,
+        });
 
         res.status(200).json({
             status: "success",
             message: "อัพเดตผู้ใช้สำเร็จ",
-            result: result,
+            result: updatedUser,
         });
     } catch (error) {
         res.status(500).json({
@@ -144,24 +137,29 @@ exports.deleteUser = async (req, res) => {
         const { id } = req.params;
 
         // ตรวจสอบว่ามีผู้ใช้อยู่จริงหรือไม่
-        const userExists = await pool.query(
-            "SELECT * FROM users WHERE id = ?",
-            [id]
-        );
+        const userExists = await prisma.user.findUnique({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+            },
+            where: { id: parseInt(id) },
+        });
 
-        if (userExists[0].length === 0) {
+        if (!userExists) {
             return res.status(404).json({ message: "ไม่พบผู้ใช้งาน" });
         }
 
         // ลบผู้ใช้
-        const [result] = await pool.query("DELETE FROM users WHERE id = ?", [
-            id,
-        ]);
+        const deletedUser = await prisma.user.delete({
+            where: { id: parseInt(id) },
+        });
 
         res.status(200).json({
             status: "success",
             message: "ลบผู้ใช้สำเร็จ",
-            result: result,
+            result: deletedUser,
         });
     } catch (error) {
         res.status(500).json({
@@ -176,12 +174,11 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const checkEmail = await pool.query(
-            "SELECT * FROM users WHERE email = ?",
-            [email]
-        );
+        const checkEmail = await prisma.user.findUnique({
+            where: { email },
+        });
 
-        if (checkEmail[0].length === 0) {
+        if (!checkEmail) {
             return res.status(401).json({
                 status: "error",
                 statusCode: 401,
@@ -190,7 +187,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        const user = checkEmail[0][0];
+        const user = checkEmail;
         const isPasswordValid = await comparePassword(password, user.password);
 
         if (!isPasswordValid) {
@@ -202,12 +199,47 @@ exports.login = async (req, res) => {
             });
         }
 
-        const getUserPermission = await pool.query(
-            "SELECT p.id, p.name FROM permission p INNER JOIN role_permission rp ON p.id = rp.permission_id INNER JOIN role r ON r.id = rp.role_id WHERE r.name = ?",
-            [user.role]
-        );
+        // 1. หา role_id จาก role name
+        const role = await prisma.role.findFirst({
+            where: {
+                name: user.role,
+            },
+            select: {
+                id: true,
+            },
+        });
 
-        const userPermission = getUserPermission[0].map((p) => p.name);
+        if (!role) {
+            return res.status(404).json({
+                status: "error",
+                message: "ไม่พบข้อมูล role",
+            });
+        }
+
+        // 2. หา permission_id จาก role_id ในตาราง Role_Permission
+        const rolePermissions = await prisma.role_permission.findMany({
+            where: {
+                role_id: role.id,
+            },
+            select: {
+                permission_id: true,
+            },
+        });
+
+        // 3. หา permission name จาก permission_id
+        const getUserPermission = await prisma.permission.findMany({
+            where: {
+                id: {
+                    in: rolePermissions.map((rp) => rp.permission_id),
+                },
+            },
+            select: {
+                id: true,
+                name: true,
+            },
+        });
+
+        const userPermission = getUserPermission.map((p) => p.name);
 
         const token = signToken({ id: user.id });
 

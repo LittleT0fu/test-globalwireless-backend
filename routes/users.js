@@ -9,29 +9,29 @@ const userController = require("../controllers/userController");
 /* GET users listing. */
 router.get(
     "/",
-    authMiddleware,
-    checkPermission("get_user"),
+    // authMiddleware,
+    // checkPermission("get_user"),
     userController.getAllUsers
 );
 
 router.post(
     "/",
-    authMiddleware,
-    checkPermission("create_user"),
+    // authMiddleware,
+    // checkPermission("create_user"),
     userController.createUser
 );
 
 router.patch(
     "/:id",
-    authMiddleware,
-    checkPermission("edit_user"),
+    // authMiddleware,
+    // checkPermission("edit_user"),
     userController.updateUser
 );
 
 router.delete(
     "/:id",
-    authMiddleware,
-    checkPermission("delete_user"),
+    // authMiddleware,
+    // checkPermission("delete_user"),
     userController.deleteUser
 );
 
