@@ -1,5 +1,5 @@
-const verifyToken = require("../utils/jwtService");
-const pool = require("../config/database");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 /**
  * ตรวจสอบสิทธิ์ของผู้ใช้
@@ -11,16 +11,17 @@ exports.checkPermission =
     (...permissions) =>
     async (req, res, next) => {
         try {
-            const user = req.user[0][0];
+            const user = req.user;
 
             //get permission
-            const permissionName = await pool.query(
-                "SELECT p.id, p.name FROM permission p INNER JOIN role_permission rp ON p.id = rp.permission_id INNER JOIN role r ON r.id = rp.role_id WHERE r.name = ?",
-                [user.role]
-            );
+            const permissionName = await prisma.permission.findMany({
+                where: {
+                    role_id: user.role_id,
+                },
+            });
 
             //check permission
-            const userPermissions = permissionName[0].map((p) => p.name);
+            const userPermissions = permissionName.map((p) => p.name);
             const hasPermission = permissions.some((p) =>
                 userPermissions.includes(p)
             );

@@ -40,8 +40,56 @@ exports.getAllUsers = async (req, res) => {
 
 // create user
 //@route POST /users
-//@access Public
+//@access Admin
 exports.createUser = async (req, res) => {
+    try {
+        const { name, email, password, role } = req.body;
+
+        // รอให้การเข้ารหัสรหัสผ่านเสร็จสิ้น
+        const hashedPassword = await encryptPassword(password);
+
+        // ตรวจสอบอีเมลซ้ำ
+        const checkEmail = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (checkEmail) {
+            return res
+                .status(400)
+                .json({ message: "Email นี้มีอยู่ในระบบแล้ว" });
+        }
+
+        // เพิ่มผู้ใช้ใหม่
+        const newUser = await prisma.user.create({
+            data: {
+                name: name,
+                email: email,
+                password: hashedPassword,
+                role: role || "user",
+            },
+        });
+
+        // ส่ง response กลับ
+        res.status(201).json({
+            status: "success",
+            message: "สร้างผู้ใช้สำเร็จ",
+            data: {
+                name,
+                email,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "เกิดข้อผิดพลาดในการสร้างผู้ใช้",
+            error: error.message,
+        });
+    }
+};
+// create user
+//@route POST /users/register
+//@access Public
+exports.createUserPublic = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -263,6 +311,48 @@ exports.login = async (req, res) => {
             statusCode: 500,
             statusText: "Internal Server Error",
             message: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
+            error: error.message,
+        });
+    }
+};
+
+exports.getProfile = async (req, res) => {
+    try {
+        // ดึง token จาก header
+        const token = req.headers.authorization;
+        if (!token) {
+            return res.status(401).json({
+                status: "error",
+                message: "ไม่พบ Token ในการยืนยันตัวตน",
+            });
+        }
+
+        // ดึงข้อมูลผู้ใช้จาก token
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+            },
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                status: "error",
+                message: "ไม่พบข้อมูลผู้ใช้",
+            });
+        }
+        res.status(200).json({
+            status: "success",
+            message: "ดึงข้อมูลผู้ใช้สำเร็จ",
+            data: user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: "เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้",
             error: error.message,
         });
     }
