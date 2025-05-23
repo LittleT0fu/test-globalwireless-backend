@@ -182,8 +182,10 @@ exports.login = async (req, res) => {
         );
 
         if (checkEmail[0].length === 0) {
-            return res.status(404).json({
+            return res.status(401).json({
                 status: "error",
+                statusCode: 401,
+                statusText: "Email Not Found",
                 message: "ไม่พบอีเมลนี้ในระบบ",
             });
         }
@@ -194,6 +196,8 @@ exports.login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 status: "error",
+                statusCode: 401,
+                statusText: "Wrong Password",
                 message: "รหัสผ่านไม่ถูกต้อง",
             });
         }
@@ -209,14 +213,23 @@ exports.login = async (req, res) => {
 
         res.status(200).json({
             status: "success",
+            statusCode: 200,
+            statusText: "Login Success",
             message: "เข้าสู่ระบบสำเร็จ",
             token: token,
-            role: user.role,
-            permission: userPermission,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                permission: userPermission,
+            },
         });
     } catch (error) {
         res.status(500).json({
             status: "error",
+            statusCode: 500,
+            statusText: "Internal Server Error",
             message: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
             error: error.message,
         });

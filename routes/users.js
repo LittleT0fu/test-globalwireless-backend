@@ -24,7 +24,7 @@ router.post(
 router.patch(
     "/:id",
     authMiddleware,
-    checkPermission("update_user"),
+    checkPermission("edit_user"),
     userController.updateUser
 );
 
