@@ -176,7 +176,6 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // ตรวจสอบอีเมลซ้ำ
         const checkEmail = await pool.query(
             "SELECT * FROM users WHERE email = ?",
             [email]
@@ -190,7 +189,7 @@ exports.login = async (req, res) => {
         }
 
         const user = checkEmail[0][0];
-        const isPasswordValid = comparePassword(password, user.password);
+        const isPasswordValid = await comparePassword(password, user.password);
 
         if (!isPasswordValid) {
             return res.status(401).json({

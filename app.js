@@ -4,6 +4,7 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const cors = require("cors");
 
 // route
 var indexRouter = require("./routes/index");
@@ -12,6 +13,15 @@ var usersRouter = require("./routes/users");
 var app = express();
 
 const dbPool = require("./config/database");
+
+// CORS configuration
+app.use(
+    cors({
+        origin: "*", // หรือระบุ domain ที่ต้องการ เช่น 'http://localhost:3000'
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
