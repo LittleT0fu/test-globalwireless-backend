@@ -26,41 +26,77 @@ npm install
 3. สร้างไฟล์ `.env` ในโฟลเดอร์หลักของโปรเจค และกำหนดค่าต่างๆ ดังนี้:
 
 ```env
-PORT=3000
-DB_HOST=localhost
-DB_USER=your_username
-DB_PASSWORD=your_password
-DB_NAME=your_database_name
+PORT=3001
+JWT_SECRET
+DATABASE_URL
+
 ```
 
 ## การรันโปรเจค
 
-### โหมด Development
+### 1. การเตรียมฐานข้อมูล
+
+-   สร้างฐานข้อมูล MySQL ตามชื่อที่กำหนดในไฟล์ .env
+-   รันคำสั่งเพื่อสร้างตารางและข้อมูลเริ่มต้น (ถ้ามี):
+
+```bash
+npm run db:setup
+```
+
+### 2. การรันในโหมดต่างๆ
+
+#### โหมด Development
 
 ```bash
 npm run dev
 ```
 
-คำสั่งนี้จะรัน server ในโหมด development โดยใช้ nodemon ซึ่งจะ restart server อัตโนมัติเมื่อมีการแก้ไขโค้ด
+-   Server จะรันที่ port 3000 (หรือตามที่กำหนดใน .env)
+-   มีการ restart อัตโนมัติเมื่อมีการแก้ไขโค้ด
+-   เหมาะสำหรับการพัฒนา
 
-### โหมด Production
+#### โหมด Production
 
 ```bash
 npm start
 ```
 
-### โหมด Debug
+-   Server จะรันในโหมด production
+-   ไม่มีการ restart อัตโนมัติ
+-   เหมาะสำหรับการใช้งานจริง
+
+#### โหมด Debug
 
 ```bash
 npm run debug
 ```
 
-คำสั่งนี้จะรัน server ในโหมด debug ซึ่งสามารถใช้ Chrome DevTools หรือ VS Code เพื่อ debug ได้
+-   Server จะรันในโหมด debug
+-   สามารถใช้ Chrome DevTools หรือ VS Code เพื่อ debug ได้
+-   เหมาะสำหรับการแก้ไขปัญหา
 
-## การเข้าถึง API
+### 3. การตรวจสอบการทำงาน
 
-Server จะทำงานที่ port 3000 (หรือตามที่กำหนดใน .env)
+-   เปิดเบราว์เซอร์และเข้าถึง `http://localhost:3000`
+-   ตรวจสอบ log ใน terminal เพื่อดูข้อผิดพลาด (ถ้ามี)
+-   ใช้ Postman หรือเครื่องมืออื่นๆ เพื่อทดสอบ API
 
--   URL: `http://localhost:3000`
+## การแก้ไขปัญหาเบื้องต้น
+
+1. ถ้าไม่สามารถรันได้ ให้ตรวจสอบ:
+
+    - Node.js และ npm ถูกติดตั้งถูกต้อง
+    - ไฟล์ .env ถูกสร้างและกำหนดค่าถูกต้อง
+    - ฐานข้อมูล MySQL ทำงานและสามารถเชื่อมต่อได้
+
+2. ถ้าเจอปัญหาเกี่ยวกับ dependencies:
+
+    ```bash
+    npm clean-install
+    ```
+
+3. ถ้าเจอปัญหาเกี่ยวกับ port:
+    - ตรวจสอบว่า port 3000 ไม่ถูกใช้งานโดยโปรแกรมอื่น
+    - หรือเปลี่ยน port ในไฟล์ .env
 
 ## โครงสร้างโปรเจค
