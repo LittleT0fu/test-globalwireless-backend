@@ -24,6 +24,17 @@ const userModel = {
         });
     },
 
+    getAll: async () => {
+        return prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+            },
+        });
+    },
+
     findById: async (id) => {
         return prisma.user.findUnique({
             where: { id },

@@ -1,12 +1,12 @@
 const { encryptPassword, comparePassword } = require("../utils/passwordUtils");
 const { signToken } = require("../utils/jwtService");
 const { PrismaClient } = require("@prisma/client");
+
+//models
+const userModel = require("../models/user_model");
+
+//prisma
 const prisma = new PrismaClient();
-
-// ... existing code ...
-
-//old
-// const pool = require("../config/database");
 
 // get all users
 //@route GET /users
@@ -14,14 +14,7 @@ const prisma = new PrismaClient();
 exports.getAllUsers = async (req, res) => {
     try {
         // ดึงข้อมูลผู้ใช้ทั้งหมดจากฐานข้อมูล
-        const users = await prisma.user.findMany({
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-            },
-        });
+        const users = await userModel.getAll();
 
         // ส่ง response กลับ
         res.status(200).json({
@@ -30,11 +23,7 @@ exports.getAllUsers = async (req, res) => {
             data: users,
         });
     } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: "เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้",
-            error: error.message,
-        });
+        next(error);
     }
 };
 
