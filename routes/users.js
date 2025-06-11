@@ -1,10 +1,15 @@
 var express = require("express");
 var router = express.Router();
-const permissionMiddleware = require("../middleware/permissionMiddleware");
+
 const { authMiddleware } = require("../middleware/authMiddleware");
 const { checkPermission } = require("../middleware/permissionMiddleware");
 
 const userController = require("../controllers/userController");
+
+//public routes
+router.post("/login", userController.login);
+
+router.post("/register", userController.createUserPublic);
 
 /* GET users listing. */
 router.get(
@@ -34,11 +39,5 @@ router.delete(
     checkPermission("delete_user"),
     userController.deleteUser
 );
-
-router.post("/login", userController.login);
-
-router.post("/register", userController.createUserPublic);
-
-router.get("/me", authMiddleware, userController.getProfile);
 
 module.exports = router;
