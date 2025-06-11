@@ -15,8 +15,6 @@ var usersRouter = require("./routes/users");
 const prisma = new PrismaClient(); // Instantiate PrismaClient
 var app = express();
 
-const dbPool = require("./config/database");
-
 // CORS configuration
 app.use(
     cors({

@@ -20,6 +20,23 @@ const roleModel = {
         });
     },
 
+    getAll: async () => {
+        return prisma.role.findMany({
+            select: {
+                id: true,
+                name: true,
+            },
+        });
+    },
+
+    findManyById: async (ids) => {
+        return prisma.role.findMany({
+            where: {
+                id: { in: ids },
+            },
+        });
+    },
+
     findById: async (id) => {
         return prisma.role.findUnique({
             where: { id },
@@ -27,7 +44,7 @@ const roleModel = {
     },
 
     findByName: async (name) => {
-        return prisma.role.findUnique({
+        return prisma.role.findFirst({
             where: { name },
         });
     },

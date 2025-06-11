@@ -19,8 +19,13 @@ const userModel = {
             throw new Error("Missing required fields");
         }
 
+        const userData = {
+            ...data,
+            role: data.role || "user",
+        };
+
         return prisma.user.create({
-            data,
+            data: userData,
         });
     },
 

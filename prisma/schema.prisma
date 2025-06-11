@@ -12,12 +12,18 @@ model permission {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
+
+  // เพิ่มความสัมพันธ์
+  role_permission role_permission[]
 }
 
 model role {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
+
+  // เพิ่มความสัมพันธ์
+  role_permission role_permission[]
 }
 
 model role_permission {
@@ -25,6 +31,10 @@ model role_permission {
   role_id       Int
   permission_id Int
   createdAt     DateTime @default(now())
+
+  // เพิ่มความสัมพันธ์
+  role       role       @relation(fields: [role_id], references: [id])
+  permission permission @relation(fields: [permission_id], references: [id])
 }
 
 model user {

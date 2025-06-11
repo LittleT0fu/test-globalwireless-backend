@@ -20,6 +20,12 @@ const permissionModel = {
         });
     },
 
+    getManyById: async (ids) => {
+        return prisma.permission.findMany({
+            where: { id: { in: ids } },
+        });
+    },
+
     findById: async (id) => {
         return prisma.permission.findUnique({
             where: { id },
@@ -27,7 +33,7 @@ const permissionModel = {
     },
 
     findByName: async (name) => {
-        return prisma.permission.findUnique({
+        return prisma.permission.findFirst({
             where: { name },
         });
     },
