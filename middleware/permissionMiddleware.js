@@ -1,6 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const rolePermissionModel = require("../models/role_permission_model");
+
 /**
  * ตรวจสอบสิทธิ์ของผู้ใช้
  * @param {object} req - คำขอ HTTP
@@ -14,11 +16,8 @@ exports.checkPermission =
             const user = req.user;
 
             //get permission
-            const permissionName = await prisma.permission.findMany({
-                where: {
-                    role_id: user.role_id,
-                },
-            });
+            const permissionName =
+                await rolePermissionModel.findPermissionsByRoleId(user.role_id);
 
             //extract permission name
             const userPermissions = permissionName.map((p) => p.name);
@@ -29,9 +28,11 @@ exports.checkPermission =
             );
 
             if (!hasPermission) {
-                return res
-                    .status(403)
-                    .json({ message: "ไม่มีสิทธิ์ในการเข้าถึง" });
+                return next({
+                    status: "error",
+                    statusCode: 403,
+                    message: "ไม่มีสิทธิ์ในการเข้าถึง",
+                });
             }
 
             next();
@@ -44,12 +45,3 @@ exports.checkPermission =
             });
         }
     };
-
-exports.authorize = (...roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ message: "Unauthorized" });
-        }
-        next();
-    };
-};

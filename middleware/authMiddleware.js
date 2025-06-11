@@ -3,33 +3,40 @@ const { verifyToken } = require("../utils/jwtService");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const userModel = require("../models/user_model");
+
 exports.authMiddleware = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
 
         if (!token || !token.startsWith("Bearer ")) {
-            return res.status(401).json({ message: "Invalid token format" });
+            return next({
+                status: "error",
+                statusCode: 401,
+                message: "Invalid token format",
+            });
         }
         const tokenValue = token.split(" ")[1];
 
         const decoded = verifyToken(tokenValue);
 
-        const user = await prisma.user.findUnique({
-            where: { id: decoded.id },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-            },
-        });
+        //get data from database
+        const user = await userModel.findById(decoded.id);
 
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return next({
+                status: "error",
+                statusCode: 401,
+                message: "Unauthorized",
+            });
         }
         req.user = user;
         next();
     } catch (error) {
-        return res.status(401).json({ message: "invalid token" });
+        return next({
+            status: "error",
+            statusCode: 401,
+            message: "invalid token",
+        });
     }
 };

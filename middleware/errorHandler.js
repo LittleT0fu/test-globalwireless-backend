@@ -1,7 +1,5 @@
 //error handler
 //@desc Error handler
-//@route GET /api/v1/auth/register
-//@access Public
 
 const errorHandler = (err, req, res, next) => {
     // กำหนดค่า default status code และ error message
