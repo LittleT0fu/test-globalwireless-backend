@@ -164,6 +164,30 @@ exports.updateUser = async (req, res) => {
             });
         }
 
+        // ตรวจสอบว่าอีเมลซ้ำหรือไม่
+        if (email) {
+            const emailExists = await userModel.findByEmail(email);
+            if (emailExists) {
+                return next({
+                    status: "error",
+                    statusCode: 400,
+                    message: "อีเมลนี้ถูกใช้งานแล้ว",
+                });
+            }
+        }
+
+        // ตรวจสอบว่า role มีอยู่ในฐานข้อมูลหรือไม่
+        if (role) {
+            const roleExists = await roleModel.findByName(role);
+            if (!roleExists) {
+                return next({
+                    status: "error",
+                    statusCode: 400,
+                    message: "ไม่พบ role ที่ระบุในระบบ",
+                });
+            }
+        }
+
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (email !== undefined) updateData.email = email;
@@ -171,15 +195,17 @@ exports.updateUser = async (req, res) => {
 
         const updatedUser = await userModel.update(id, updateData);
 
+        const responseData = {
+            name: updatedUser.name,
+            email: updatedUser.email,
+            role: updatedUser.role,
+        };
+
         res.status(200).json({
             status: "success",
             statusCode: 200,
             message: "อัพเดตผู้ใช้สำเร็จ",
-            data: {
-                name: updatedUser.name,
-                email: updatedUser.email,
-                role: updatedUser.role,
-            },
+            data: responseData,
         });
     } catch (error) {
         next({
@@ -202,6 +228,25 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+        const { user } = req.user;
+
+        // ตรวจสอบว่า id เป็นตัวเลขหรือไม่
+        if (isNaN(id)) {
+            return next({
+                status: "error",
+                statusCode: 400,
+                message: "รหัสผู้ใช้ต้องเป็นตัวเลขเท่านั้น",
+            });
+        }
+
+        // ตรวจสอบว่าผู้ใช้พยายามลบบัญชีของตัวเอง
+        if (user.id === parseInt(id)) {
+            return next({
+                status: "error",
+                statusCode: 403,
+                message: "ไม่สามารถลบบัญชีผู้ใช้ตัวเองได้",
+            });
+        }
 
         // ตรวจสอบว่ามีผู้ใช้อยู่จริงหรือไม่
         const userExist = await userModel.findById(id);
@@ -274,7 +319,6 @@ exports.login = async (req, res) => {
             });
         }
 
-        // *!
         // 2. หา permission_id จาก role_id ในตาราง Role_Permission
         const rolePermissions =
             await rolePermissionModel.findPermissionsByRoleId(role.id);

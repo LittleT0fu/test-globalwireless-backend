@@ -20,8 +20,10 @@ exports.checkPermission =
                 },
             });
 
-            //check permission
+            //extract permission name
             const userPermissions = permissionName.map((p) => p.name);
+
+            //check permission
             const hasPermission = permissions.some((p) =>
                 userPermissions.includes(p)
             );
@@ -34,8 +36,9 @@ exports.checkPermission =
 
             next();
         } catch (error) {
-            res.status(500).json({
+            next({
                 status: "error",
+                statusCode: 500,
                 message: "เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์",
                 error: error.message,
             });
