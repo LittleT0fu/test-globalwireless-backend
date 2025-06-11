@@ -188,11 +188,11 @@ exports.updateUser = async (req, res) => {
             }
         }
 
+        //update data
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (email !== undefined) updateData.email = email;
         if (role !== undefined) updateData.role = role;
-
         const updatedUser = await userModel.update(id, updateData);
 
         const responseData = {
