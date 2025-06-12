@@ -8,10 +8,9 @@ const userController = require("../controllers/userController");
 
 //public routes
 router.post("/login", userController.login);
-
 router.post("/register", userController.createUserPublic);
 
-/* GET users listing. */
+//auth routes
 router.get(
     "/",
     authMiddleware,

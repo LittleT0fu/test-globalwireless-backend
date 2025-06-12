@@ -19,8 +19,12 @@ exports.checkPermission =
             const permissionName =
                 await rolePermissionModel.findPermissionsByRoleId(user.role_id);
 
+            console.log(permissionName);
+
             //extract permission name
-            const userPermissions = permissionName.map((p) => p.name);
+            const userPermissions = permissionName.map(
+                (p) => p.permission.name
+            );
 
             //check permission
             const hasPermission = permissions.some((p) =>
