@@ -203,7 +203,6 @@ exports.updateUser = async (req, res) => {
 
         res.status(200).json({
             status: "success",
-            statusCode: 200,
             message: "อัพเดตผู้ใช้สำเร็จ",
             data: responseData,
         });

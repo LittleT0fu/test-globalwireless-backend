@@ -27,8 +27,9 @@ const errorHandler = (err, req, res, next) => {
     // ส่ง response กลับไปยัง client
     res.status(statusCode).json({
         success: false,
-        error: message,
-        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+        statusCode: statusCode,
+        message: message,
+        ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
     });
 };
 

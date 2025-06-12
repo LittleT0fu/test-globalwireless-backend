@@ -1,28 +1,25 @@
 require("dotenv").config();
-const { PrismaClient } = require("@prisma/client");
-var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors");
-const errorHandler = require("./middleware/errorHandler");
-
-// route
-var indexRouter = require("./routes/index");
+const corsOptions = require("./config/corsConfig");
+const helmet = require("helmet");
+const limiter = require("./config/rateLimit");
 var usersRouter = require("./routes/users");
+const errorHandler = require("./middleware/errorHandler");
+const notFoundHandler = require("./middleware/notFoundHandler");
 
-const prisma = new PrismaClient(); // Instantiate PrismaClient
 var app = express();
 
-// CORS configuration
-app.use(
-    cors({
-        origin: "*", // หรือระบุ domain ที่ต้องการ เช่น 'http://localhost:3000'
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
+//security middleware
+app.use(helmet());
+app.use(cors(corsOptions));
+app.use(limiter);
+
+//prisma
+const prisma = require("./libs/prisma");
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -33,21 +30,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
+//routes
 app.use("/users", usersRouter);
 
-app.use("/test", (req, res) => {
-    res.json({
-        message: "Hello World",
-    });
-});
-
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-    next(createError(404));
-});
-
 // error handler
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 module.exports = app;
