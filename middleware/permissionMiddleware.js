@@ -27,8 +27,8 @@ exports.checkPermission =
             );
 
             //check permission
-            const hasPermission = permissions.some((p) =>
-                userPermissions.includes(p)
+            const hasPermission = permissions.every((perm) =>
+                userPermissions.includes(perm)
             );
 
             if (!hasPermission) {
