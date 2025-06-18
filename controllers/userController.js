@@ -6,7 +6,8 @@ const { PrismaClient } = require("@prisma/client");
 const userModel = require("../models/user_model");
 const rolePermissionModel = require("../models/role_permission_model");
 const roleModel = require("../models/role_model");
-const permissionModel = require("../models/permission_model");
+const loginLogModel = require("../models/loginLog_model");
+
 //prisma
 const prisma = new PrismaClient();
 
@@ -15,10 +16,10 @@ const prisma = new PrismaClient();
 //@access Public
 exports.getAllUsers = async (req, res) => {
     try {
-        // ดึงข้อมูลผู้ใช้ทั้งหมดจากฐานข้อมูล
+        // get all users from database
         const users = await userModel.getAll();
 
-        // ส่ง response กลับ
+        // send response
         res.status(200).json({
             status: "success",
             message: "ดึงข้อมูลผู้ใช้สำเร็จ",
@@ -43,9 +44,10 @@ exports.getAllUsers = async (req, res) => {
 //@access Admin
 exports.createUser = async (req, res) => {
     try {
+        // get value from request
         const { name, email, password, role } = req.body;
 
-        // ตรวจสอบอีเมลซ้ำ
+        // check email already used
         const existingUser = await userModel.findByEmail(email);
         if (existingUser) {
             return next({
@@ -55,10 +57,10 @@ exports.createUser = async (req, res) => {
             });
         }
 
-        // รอให้การเข้ารหัสรหัสผ่านเสร็จสิ้น
+        // encrypt password
         const hashedPassword = await encryptPassword(password);
 
-        // เพิ่มผู้ใช้ใหม่
+        // create new user
         const newUser = await userModel.create({
             name,
             email,
@@ -66,7 +68,7 @@ exports.createUser = async (req, res) => {
             role,
         });
 
-        // ส่ง response กลับ
+        // send response
         res.status(201).json({
             status: "success",
             statusCode: 201,
@@ -97,12 +99,13 @@ exports.createUser = async (req, res) => {
 //@access Public
 exports.createUserPublic = async (req, res) => {
     try {
+        // get value from request
         const { name, email, password } = req.body;
 
-        // รอให้การเข้ารหัสรหัสผ่านเสร็จสิ้น
+        // encrypt password
         const hashedPassword = await encryptPassword(password);
 
-        // ตรวจสอบอีเมลซ้ำ
+        // check email already used
         const existingUser = await userModel.findByEmail(email);
         if (existingUser) {
             return next({
@@ -112,14 +115,14 @@ exports.createUserPublic = async (req, res) => {
             });
         }
 
-        // เพิ่มผู้ใช้ใหม่
+        // create new user
         const newUser = await userModel.create({
             name,
             email,
             password: hashedPassword,
         });
 
-        // ส่ง response กลับ
+        // send response
         res.status(201).json({
             status: "success",
             statusCode: 201,
@@ -132,7 +135,6 @@ exports.createUserPublic = async (req, res) => {
         });
     } catch (error) {
         next({
-            // ส่งข้อมูล error ที่ชัดเจน
             status: "error",
             statusCode: 500,
             message: "เกิดข้อผิดพลาดในการสร้างผู้ใช้",
@@ -151,10 +153,11 @@ exports.createUserPublic = async (req, res) => {
 //@access Public
 exports.updateUser = async (req, res) => {
     try {
+        // get value from request
         const { id } = req.params;
         const { name, email, role } = req.body;
 
-        // ตรวจสอบว่ามีผู้ใช้อยู่จริงหรือไม่
+        // check user exist on database
         const userExist = await userModel.findById(id);
         if (!userExist) {
             return next({
@@ -164,7 +167,7 @@ exports.updateUser = async (req, res) => {
             });
         }
 
-        // ตรวจสอบว่าอีเมลซ้ำหรือไม่
+        // check email already used by other user
         if (email) {
             const emailExists = await userModel.findByEmail(email);
             if (emailExists) {
@@ -176,7 +179,7 @@ exports.updateUser = async (req, res) => {
             }
         }
 
-        // ตรวจสอบว่า role มีอยู่ในฐานข้อมูลหรือไม่
+        // check role exist on database
         if (role) {
             const roleExists = await roleModel.findByName(role);
             if (!roleExists) {
@@ -188,19 +191,23 @@ exports.updateUser = async (req, res) => {
             }
         }
 
-        //update data
+        // check data to update if data is not undefined
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (email !== undefined) updateData.email = email;
         if (role !== undefined) updateData.role = role;
+
+        // update user data on database
         const updatedUser = await userModel.update(id, updateData);
 
+        // response data
         const responseData = {
             name: updatedUser.name,
             email: updatedUser.email,
             role: updatedUser.role,
         };
 
+        // send response
         res.status(200).json({
             status: "success",
             message: "อัพเดตผู้ใช้สำเร็จ",
@@ -226,10 +233,11 @@ exports.updateUser = async (req, res) => {
 //@access Public
 exports.deleteUser = async (req, res) => {
     try {
+        //  get value from request
         const { id } = req.params;
         const { user } = req.user;
 
-        // ตรวจสอบว่า id เป็นตัวเลขหรือไม่
+        // check id is number
         if (isNaN(id)) {
             return next({
                 status: "error",
@@ -238,7 +246,7 @@ exports.deleteUser = async (req, res) => {
             });
         }
 
-        // ตรวจสอบว่าผู้ใช้พยายามลบบัญชีของตัวเอง
+        // check user try to delete own account
         if (user.id === parseInt(id)) {
             return next({
                 status: "error",
@@ -247,7 +255,7 @@ exports.deleteUser = async (req, res) => {
             });
         }
 
-        // ตรวจสอบว่ามีผู้ใช้อยู่จริงหรือไม่
+        // check user exist
         const userExist = await userModel.findById(id);
         if (!userExist) {
             return next({
@@ -257,9 +265,10 @@ exports.deleteUser = async (req, res) => {
             });
         }
 
-        // ลบผู้ใช้
+        // delete user
         const deletedUser = await userModel.delete(id);
 
+        // send response
         res.status(200).json({
             status: "success",
             statusCode: 200,
@@ -288,8 +297,14 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const checkEmail = await userModel.findByEmail(email);
-        if (!checkEmail) {
+        const user = await userModel.findByEmail(email);
+        if (!user) {
+            // create login log when login failed
+            await loginLogModel.create({
+                user_id: null,
+                status: false,
+                req: req,
+            });
             return next({
                 status: "error",
                 statusCode: 401,
@@ -297,9 +312,14 @@ exports.login = async (req, res) => {
             });
         }
 
-        const user = checkEmail;
         const isPasswordValid = await comparePassword(password, user.password);
         if (!isPasswordValid) {
+            // create login log when login failed
+            await loginLogModel.create({
+                user_id: user.id,
+                status: false,
+                req: req,
+            });
             return next({
                 status: "error",
                 statusCode: 401,
@@ -307,7 +327,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        // 1. หา role_id จาก role name
+        // find user role
         const role = await roleModel.findByName(user.role);
 
         if (!role) {
@@ -318,15 +338,24 @@ exports.login = async (req, res) => {
             });
         }
 
-        // 2. หา permission_id จาก role_id ในตาราง Role_Permission
+        // find user permission
         const rolePermissions =
             await rolePermissionModel.findPermissionsByRoleId(role.id);
 
-        // 3. หา permission name จาก permission_id
+        // get user permission name
         const userPermission = rolePermissions.map((rp) => rp.permission.name);
 
+        // create token
         const token = signToken({ id: user.id });
 
+        // create login log when login success
+        await loginLogModel.create({
+            user_id: user.id,
+            status: true,
+            req: req,
+        });
+
+        // send response
         res.status(200).json({
             status: "success",
             statusCode: 200,
