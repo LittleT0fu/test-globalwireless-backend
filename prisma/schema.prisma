@@ -38,23 +38,10 @@ model role_permission {
 }
 
 model user {
-  id        Int         @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String      @unique
+  email     String   @unique
   password  String
-  createdAt DateTime    @default(now())
+  createdAt DateTime @default(now())
   role      String
-  login_log login_log[]
-}
-
-model login_log {
-  id         Int      @id @default(autoincrement())
-  user_id    Int? // เพิ่ม ? เพื่อให้เป็น optional
-  ip_address String
-  status     Boolean // true = สำเร็จ, false = ไม่สำเร็จ
-  user_agent String
-  createdAt  DateTime @default(now())
-
-  // เพิ่มความสัมพันธ์
-  user user? @relation(fields: [user_id], references: [id]) // เพิ่ม ? เพื่อให้เป็น optional
 }
