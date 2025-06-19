@@ -293,15 +293,10 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// login
-//@route POST /users/login
-//@access Public
 exports.login = async (req, res) => {
     try {
-        // get value from request
         const { email, password } = req.body;
 
-        // find user by email
         const user = await userModel.findByEmail(email);
         if (!user) {
             // create login log when login failed
