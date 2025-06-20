@@ -12,9 +12,19 @@ services:
     depends_on:
       - mysql
     environment:
-      - DATABASE_URL=mysql://root:root@mysql:3306/global_wireless_test
+      # Database Local
+      - DATABASE_URL=mysql://root:root@mysql:3306/global_wireless_test 
       - NODE_ENV=development
       - PORT=3000
+      # JWT
+      - JWT_SECRET=your_super_secure_jwt_secret_key_here_minimum_32_characters_long_for_security
+      - JWT_EXPIRES_IN=24h
+      # Rate Limit
+      - RATE_LIMIT_WINDOW_MS=15m
+      - RATE_LIMIT_MAX_REQUESTS=100
+      # Bcrypt
+      - BCRYPT_ROUNDS=12
+      - ALLOWED_ORIGINS=http://localhost:3000
 
   # MySQL
   mysql:
