@@ -32,9 +32,6 @@ exports.getAllUsers = async (req, res) => {
             message: "เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้",
             error: error.message,
             location: "getAllUsers function",
-            details: {
-                operation: "user retrieval",
-            },
         });
     }
 };

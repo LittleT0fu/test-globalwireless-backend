@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const config = require("../config/env");
 
 /**
  * สร้าง JWT token
@@ -11,8 +12,8 @@ exports.signToken = (data) => {
     };
 
     try {
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: "24h",
+        const token = jwt.sign(payload, config.jwtSecret, {
+            expiresIn: config.jwtExpiresIn,
         });
         return token;
     } catch (error) {
@@ -27,7 +28,7 @@ exports.signToken = (data) => {
  */
 exports.verifyToken = (token) => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, config.jwtSecret);
         return decoded;
     } catch (error) {
         throw new Error("เกิดข้อผิดพลาดในการตรวจสอบ token" + error);

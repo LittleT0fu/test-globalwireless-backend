@@ -1,7 +1,7 @@
+const config = require("./env");
+
 const corsOptions = {
-    origin: process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(",")
-        : ["http://localhost:3000"],
+    origin: config.allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,

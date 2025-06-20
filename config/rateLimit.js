@@ -1,8 +1,9 @@
 const rateLimit = require("express-rate-limit");
+const config = require("./env");
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 นาที
-    max: 100, // จำกัด request ต่อ IP ที่ 100 ครั้งต่อ windowMs
+    windowMs: config.rateLimitWindowMs,
+    max: config.rateLimitMaxRequests,
 });
 
 module.exports = limiter;
