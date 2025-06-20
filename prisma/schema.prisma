@@ -8,36 +8,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model permission {
+model permissions {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
 
   // เพิ่มความสัมพันธ์
-  role_permission role_permission[]
+  roles_permissions roles_permissions[]
 }
 
-model role {
+model roles {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
 
   // เพิ่มความสัมพันธ์
-  role_permission role_permission[]
+  roles_permissions roles_permissions[]
 }
 
-model role_permission {
+model roles_permissions {
   id            Int      @id @default(autoincrement())
   role_id       Int
   permission_id Int
   createdAt     DateTime @default(now())
 
   // เพิ่มความสัมพันธ์
-  role       role       @relation(fields: [role_id], references: [id])
-  permission permission @relation(fields: [permission_id], references: [id])
+  roles       roles       @relation(fields: [role_id], references: [id])
+  permissions permissions @relation(fields: [permission_id], references: [id])
 }
 
-model user {
+model users {
   id        Int         @id @default(autoincrement())
   name      String
   email     String      @unique
@@ -56,5 +56,5 @@ model login_log {
   createdAt  DateTime @default(now())
 
   // เพิ่มความสัมพันธ์
-  user user? @relation(fields: [user_id], references: [id]) // เพิ่ม ? เพื่อให้เป็น optional
+  users users? @relation(fields: [user_id], references: [id]) // เพิ่ม ? เพื่อให้เป็น optional
 }

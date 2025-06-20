@@ -24,13 +24,13 @@ const userModel = {
             role: data.role || "user",
         };
 
-        return prisma.user.create({
+        return prisma.users.create({
             data: userData,
         });
     },
 
     getAll: async () => {
-        return prisma.user.findMany({
+        return prisma.users.findMany({
             select: {
                 id: true,
                 name: true,
@@ -41,26 +41,26 @@ const userModel = {
     },
 
     findById: async (id) => {
-        return prisma.user.findUnique({
+        return prisma.users.findUnique({
             where: { id },
         });
     },
 
     findByEmail: async (email) => {
-        return prisma.user.findUnique({
+        return prisma.users.findUnique({
             where: { email },
         });
     },
 
     update: async (id, data) => {
-        return prisma.user.update({
+        return prisma.users.update({
             where: { id },
             data,
         });
     },
 
     delete: async (id) => {
-        return prisma.user.delete({
+        return prisma.users.delete({
             where: { id },
         });
     },
