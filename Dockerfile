@@ -14,9 +14,6 @@ RUN npm ci --only=production
 # copy source code
 COPY . .
 
-# generate Prisma client
-RUN npx prisma generate
-
 # set port from env file
 ENV PORT=3000
 EXPOSE $PORT

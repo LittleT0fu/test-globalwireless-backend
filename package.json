@@ -7,7 +7,13 @@
     "dev": "nodemon ./bin/www",
     "debug": "nodemon --inspect ./bin/www",
     "db:setup": "node prisma/db-setup.js",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node prisma/seed.js",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f",
+    "docker:reset": "docker-compose down -v && docker-compose up -d",
+    "docker:first-run": "docker-compose up -d && timeout /t 20  && node prisma/db-setup.js"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",

@@ -18,11 +18,12 @@ async function setupDatabase() {
         const execAsync = promisify(exec);
 
         try {
-            await execAsync("npx prisma migrate deploy");
-            console.log("✅ migrations completed successfully \n");
+            // ใช้ db push แทน migrate deploy สำหรับ development
+            await execAsync("npx prisma db push");
+            console.log("✅ schema synced successfully \n");
         } catch (migrationError) {
             console.log(
-                "⚠️  migrations may have problems or already run:",
+                "⚠️  schema sync may have problems:",
                 migrationError.message
             );
         }
