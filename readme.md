@@ -7,6 +7,7 @@ Backend API สำหรับ GlobalWireless Project
 -   Node.js (เวอร์ชัน 14.0.0 หรือสูงกว่า)
 -   npm (Node Package Manager)
 -   MySQL Database
+-   Docker | Docker Desktop
 
 ## การติดตั้ง
 
@@ -32,9 +33,9 @@ DATABASE_URL
 
 ```
 
-## การรันโปรเจค
+## การรันโปรเจค can run with docker
 
-### 1. การเตรียมฐานข้อมูล
+### การเตรียมฐานข้อมูล
 
 -   สร้างฐานข้อมูล MySQL ตามชื่อที่กำหนดในไฟล์ .env
 -   รันคำสั่งเพื่อสร้างตารางและข้อมูลเริ่มต้น (ถ้ามี):
@@ -43,13 +44,48 @@ DATABASE_URL
 npm run db:setup
 ```
 
+### การรันด้วย Docker
+
+#### การรันครั้งแรก
+
+```bash
+# รันโปรเจคด้วย Docker (รวมการตั้งค่าฐานข้อมูล)
+npm run docker:first-run
+```
+
+คำสั่งนี้จะ:
+
+-   สร้างและรัน containers ทั้งหมด (Node.js, MySQL, phpMyAdmin)
+-   รอให้ MySQL พร้อมใช้งาน
+-   รันการตั้งค่าฐานข้อมูลอัตโนมัติ
+
+#### คำสั่ง Docker อื่นๆ
+
+````bash
+# รันโปรเจค
+npm run docker:up
+
+# หยุดการทำงาน
+npm run docker:down
+
+# สร้าง image ใหม่
+npm run docker:build
+
+# ดู logs
+npm run docker:logs
+
+# รีเซ็ตทั้งหมด (ลบข้อมูลและรันใหม่)
+npm run docker:reset
+
+
+
 ### 2. การรันในโหมดต่างๆ
 
 #### โหมด Development
 
 ```bash
 npm run dev
-```
+````
 
 -   Server จะรันที่ port 3000 (หรือตามที่กำหนดใน .env)
 -   มีการ restart อัตโนมัติเมื่อมีการแก้ไขโค้ด
@@ -75,7 +111,29 @@ npm run debug
 -   สามารถใช้ Chrome DevTools หรือ VS Code เพื่อ debug ได้
 -   เหมาะสำหรับการแก้ไขปัญหา
 
-### 3. การตรวจสอบการทำงาน
+#### การเข้าถึงแอปพลิเคชัน
+
+หลังจากรันด้วย Docker แล้ว:
+
+-   **Backend API**: http://localhost:3000
+-   **phpMyAdmin**: http://localhost:8080
+    -   Username: `root`
+    -   Password: `root`
+
+#### การตั้งค่า Docker
+
+โปรเจคใช้ Docker Compose ที่ประกอบด้วย:
+
+-   **Node.js Server**: รันแอปพลิเคชันหลัก
+-   **MySQL Database**: ฐานข้อมูล
+-   **phpMyAdmin**: เครื่องมือจัดการฐานข้อมูล
+
+ไฟล์การตั้งค่า:
+
+-   `docker-compose.yml`: กำหนดการตั้งค่า services
+-   `Dockerfile`: กำหนดการสร้าง Node.js image
+
+### 4. การตรวจสอบการทำงาน
 
 -   เปิดเบราว์เซอร์และเข้าถึง `http://localhost:3000`
 -   ตรวจสอบ log ใน terminal เพื่อดูข้อผิดพลาด (ถ้ามี)
@@ -96,10 +154,14 @@ npm run debug
     ```
 
 3. ถ้าเจอปัญหาเกี่ยวกับ port:
+
     - ตรวจสอบว่า port 3000 ไม่ถูกใช้งานโดยโปรแกรมอื่น
     - หรือเปลี่ยน port ในไฟล์ .env
 
-## โครงสร้างโปรเจค
+4. ถ้าเจอปัญหาเกี่ยวกับ Docker:
+    - ตรวจสอบว่า Docker Desktop ทำงานอยู่
+    - ลองรัน `docker system prune` เพื่อลบข้อมูลที่ไม่ใช้
+    - ตรวจสอบว่า ports 3000, 3306, 8080 ไม่ถูกใช้งาน
 
 ### User Routes
 
@@ -109,3 +171,7 @@ npm run debug
 -   `POST /users` - สร้างผู้ใช้ใหม่ (ต้องการการยืนยันตัวตนและสิทธิ์ "create_user")
 -   `PATCH /users/:id` - อัปเดตข้อมูลผู้ใช้ (ต้องการการยืนยันตัวตนและสิทธิ์ "edit_user")
 -   `DELETE /users/:id` - ลบผู้ใช้ (ต้องการการยืนยันตัวตนและสิทธิ์ "delete_user")
+
+```
+
+```
