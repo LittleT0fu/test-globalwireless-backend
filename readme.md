@@ -22,18 +22,18 @@ cd globalwireless-frontend
 
 ```env
       # Database Local
-      - DATABASE_URL
-      - NODE_ENV
-      - PORT
+      - DATABASE_URL  #URL สำหรับเชื่อมต่อฐานข้อมูล MySQL (ใช้สำหรับ Docker)
+      - NODE_ENV  #โหมดการทำงาน (development/production)
+      - PORT  #พอร์ตที่เซิร์ฟเวอร์จะรัน
       # JWT
-      - JWT_SECRET
-      - JWT_EXPIRES_IN
+      - JWT_SECRET  #คีย์ลับสำหรับสร้าง JWT token (ต้องยาวอย่างน้อย 32 ตัวอักษร)
+      - JWT_EXPIRES_IN #เวลาหมดอายุของ JWT token (24h , 50m)
       # Rate Limit
-      - RATE_LIMIT_WINDOW_MS
-      - RATE_LIMIT_MAX_REQUESTS
+      - RATE_LIMIT_WINDOW_MS  #หน้าต่างเวลาในการจำกัดการเรียก API (15 นาที = 900000ms)
+      - RATE_LIMIT_MAX_REQUESTS  #จำนวนการเรียก API สูงสุดในหน้าต่างเวลาที่กำหนด
       # Bcrypt
-      - BCRYPT_ROUNDS
-      - ALLOWED_ORIGINS
+      - BCRYPT_ROUNDS  #จำนวนรอบในการเข้ารหัสรหัสผ่าน
+      - ALLOWED_ORIGINS  #โดเมนที่อนุญาตให้เข้าถึง API (คั่นด้วยเครื่องหมายจุลภาค) (http://localhost:3000)
 ```
 
 ### วิธีการรันโปรเจค
