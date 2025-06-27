@@ -93,7 +93,7 @@ npm run dev
 ## โหมด Production
 
 ```bash
-npm start
+npm run start
 ```
 
 -   Server จะรันในโหมด production
