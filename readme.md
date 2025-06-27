@@ -29,13 +29,11 @@ Backend API สำหรับ GlobalWireless Project
       - ALLOWED_ORIGINS
 ```
 
-## การรันโปรเจค
-
 ### วิธีการรันโปรเจค
 
-มี 3 วิธีในการรันโปรเจค:
+#### มี 2 วิธีในการรันโปรเจค:
 
-#### 1. รันผ่าน Docker (recommend)
+## 1. รันผ่าน Docker (recommend)
 
 เปิดโปรแกรม Doker Desktop
 
@@ -59,7 +57,7 @@ npm run docker:reset
 
 ```
 
-#### 2. รัยผ่าน Node
+## 2. รัยผ่าน Node
 
 # ติดตั้ง package
 
