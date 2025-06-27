@@ -27,10 +27,19 @@ npm install
 3. สร้างไฟล์ `.env` ในโฟลเดอร์หลักของโปรเจค และกำหนดค่าต่างๆ ดังนี้:
 
 ```env
-PORT=3001
-JWT_SECRET
-DATABASE_URL
-
+      # Database Local
+      - DATABASE_URL
+      - NODE_ENV
+      - PORT
+      # JWT
+      - JWT_SECRET
+      - JWT_EXPIRES_IN
+      # Rate Limit
+      - RATE_LIMIT_WINDOW_MS
+      - RATE_LIMIT_MAX_REQUESTS
+      # Bcrypt
+      - BCRYPT_ROUNDS
+      - ALLOWED_ORIGINS
 ```
 
 ## การรันโปรเจค can run with docker

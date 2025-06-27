@@ -6,25 +6,32 @@ services:
     ports: # port mapping
       - 3000:3000 # host:container port mapping
     working_dir: /app # working directory
-    env_file: # env file
-      - .env # .env file path
     restart: unless-stopped # restart policy
     depends_on:
       - mysql
+    env_file: # env file
+      - .env # .env file path
     environment:
       # Database Local
-      - DATABASE_URL=mysql://root:root@mysql:3306/global_wireless_test 
-      - NODE_ENV=development
-      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL}
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
       # JWT
-      - JWT_SECRET=your_super_secure_jwt_secret_key_here_minimum_32_characters_long_for_security
-      - JWT_EXPIRES_IN=24h
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       # Rate Limit
-      - RATE_LIMIT_WINDOW_MS=15m
-      - RATE_LIMIT_MAX_REQUESTS=100
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
       # Bcrypt
-      - BCRYPT_ROUNDS=12
-      - ALLOWED_ORIGINS=http://localhost:3000
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    command: >
+      sh -c "
+        npx prisma generate &&
+        npx prisma db push &&
+        npx prisma db seed &&
+        npm run start
+      "
 
   # MySQL
   mysql:
