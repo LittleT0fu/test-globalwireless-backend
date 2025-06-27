@@ -9,6 +9,13 @@ Backend API สำหรับ GlobalWireless Project
 -   MySQL Database
 -   Docker | Docker Desktop
 
+**Clone โปรเจกต์:**
+
+```bash
+git clone <repository-url>
+cd globalwireless-frontend
+```
+
 ## เตรียมพร้อมก่อนการใช้งาน
 
 สร้างไฟล์ `.env` ในโฟลเดอร์หลักของโปรเจค และกำหนดค่าต่างๆ ดังนี้:
