@@ -21,6 +21,7 @@
     "docker:reset": "docker-compose down -v && docker-compose up -d"
   },
   "dependencies": {
+    "nodemon": "^3.0.2",
     "@prisma/client": "^6.8.2",
     "bcrypt": "^6.0.0",
     "cookie-parser": "~1.4.4",
