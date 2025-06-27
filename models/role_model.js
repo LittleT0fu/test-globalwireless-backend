@@ -9,19 +9,21 @@ const prisma = new PrismaClient();
  * @property {string} name - ชื่อบทบาท
  */
 
+const tableName = "roles";
+
 const roleModel = {
     create: async (data) => {
         if (!data.name) {
             throw new Error("Missing required fields");
         }
 
-        return prisma.role.create({
+        return prisma[tableName].create({
             data,
         });
     },
 
     getAll: async () => {
-        return prisma.role.findMany({
+        return prisma[tableName].findMany({
             select: {
                 id: true,
                 name: true,
@@ -30,7 +32,7 @@ const roleModel = {
     },
 
     findManyById: async (ids) => {
-        return prisma.role.findMany({
+        return prisma[tableName].findMany({
             where: {
                 id: { in: ids },
             },
@@ -38,26 +40,26 @@ const roleModel = {
     },
 
     findById: async (id) => {
-        return prisma.role.findUnique({
+        return prisma[tableName].findUnique({
             where: { id },
         });
     },
 
     findByName: async (name) => {
-        return prisma.role.findFirst({
+        return prisma[tableName].findFirst({
             where: { name },
         });
     },
 
     update: async (id, data) => {
-        return prisma.role.update({
+        return prisma[tableName].update({
             where: { id },
             data,
         });
     },
 
     delete: async (id) => {
-        return prisma.role.delete({
+        return prisma[tableName].delete({
             where: { id },
         });
     },

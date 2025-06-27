@@ -9,44 +9,46 @@ const prisma = new PrismaClient();
  * @property {string} name - ชื่อสิทธิ์
  */
 
+const tableName = "permissions";
+
 const permissionModel = {
     create: async (data) => {
         if (!data.name) {
             throw new Error("Missing required fields");
         }
 
-        return prisma.permission.create({
+        return prisma[tableName].create({
             data,
         });
     },
 
     getManyById: async (ids) => {
-        return prisma.permission.findMany({
+        return prisma[tableName].findMany({
             where: { id: { in: ids } },
         });
     },
 
     findById: async (id) => {
-        return prisma.permission.findUnique({
+        return prisma[tableName].findUnique({
             where: { id },
         });
     },
 
     findByName: async (name) => {
-        return prisma.permission.findFirst({
+        return prisma[tableName].findFirst({
             where: { name },
         });
     },
 
     update: async (id, data) => {
-        return prisma.permission.update({
+        return prisma[tableName].update({
             where: { id },
             data,
         });
     },
 
     delete: async (id) => {
-        return prisma.permission.delete({
+        return prisma[tableName].delete({
             where: { id },
         });
     },

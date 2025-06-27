@@ -29,6 +29,10 @@ const errorHandler = (err, req, res, next) => {
         success: false,
         statusCode: statusCode,
         message: message,
+        // เพิ่มเติมสำหรับ error object ที่ custom
+        error: err.error || undefined,
+        location: err.location || undefined,
+        details: err.details || undefined,
         ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
     });
 };

@@ -35,7 +35,6 @@ router.post(
 
 router.patch(
     "/:id",
-    validateIdParam,
     authMiddleware,
     checkPermission("edit_user"),
     validateUpdateUser,
@@ -44,7 +43,6 @@ router.patch(
 
 router.delete(
     "/:id",
-    validateIdParam,
     authMiddleware,
     checkPermission("delete_user"),
     userController.deleteUser

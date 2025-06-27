@@ -47,20 +47,12 @@ const createUserSchema = Joi.object({
         "any.required": "อีเมลจำเป็นต้องระบุ",
     }),
 
-    password: Joi.string()
-        .min(8)
-        .pattern(
-            new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])")
-        )
-        .required()
-        .messages({
-            "string.base": "รหัสผ่านต้องเป็นตัวอักษร",
-            "string.empty": "รหัสผ่านไม่สามารถเป็นค่าว่างได้",
-            "string.min": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
-            "string.pattern.base":
-                "รหัสผ่านต้องประกอบด้วยตัวอักษรพิมพ์เล็ก พิมพ์ใหญ่ ตัวเลข และอักขระพิเศษ",
-            "any.required": "รหัสผ่านจำเป็นต้องระบุ",
-        }),
+    password: Joi.string().min(8).required().messages({
+        "string.base": "รหัสผ่านต้องเป็นตัวอักษร",
+        "string.empty": "รหัสผ่านไม่สามารถเป็นค่าว่างได้",
+        "string.min": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+        "any.required": "รหัสผ่านจำเป็นต้องระบุ",
+    }),
 
     role: Joi.string().valid("admin", "user", "moderator").optional().messages({
         "string.base": "บทบาทต้องเป็นตัวอักษร",
@@ -101,20 +93,12 @@ const registerSchema = Joi.object({
         "any.required": "อีเมลจำเป็นต้องระบุ",
     }),
 
-    password: Joi.string()
-        .min(8)
-        .pattern(
-            new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])")
-        )
-        .required()
-        .messages({
-            "string.base": "รหัสผ่านต้องเป็นตัวอักษร",
-            "string.empty": "รหัสผ่านไม่สามารถเป็นค่าว่างได้",
-            "string.min": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
-            "string.pattern.base":
-                "รหัสผ่านต้องประกอบด้วยตัวอักษรพิมพ์เล็ก พิมพ์ใหญ่ ตัวเลข และอักขระพิเศษ",
-            "any.required": "รหัสผ่านจำเป็นต้องระบุ",
-        }),
+    password: Joi.string().min(8).required().messages({
+        "string.base": "รหัสผ่านต้องเป็นตัวอักษร",
+        "string.empty": "รหัสผ่านไม่สามารถเป็นค่าว่างได้",
+        "string.min": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+        "any.required": "รหัสผ่านจำเป็นต้องระบุ",
+    }),
 });
 
 // Schema สำหรับการอัปเดตผู้ใช้งาน
@@ -138,54 +122,10 @@ const updateUserSchema = Joi.object({
     }),
 });
 
-// Schema สำหรับการ validate ID parameters
-const validateIdParam = Joi.object({
-    id: Joi.string()
-        .pattern(/^[0-9a-fA-F]{24}$/)
-        .required()
-        .messages({
-            "string.base": "ID ต้องเป็นตัวอักษร",
-            "string.pattern.base": "รูปแบบ ID ไม่ถูกต้อง",
-            "any.required": "ID จำเป็นต้องระบุ",
-        }),
-});
-
-// ฟังก์ชันสำหรับ validate parameters
-const validateParams = (schema) => {
-    return (req, res, next) => {
-        const { error, value } = schema.validate(req.params, {
-            abortEarly: false,
-            allowUnknown: true,
-            stripUnknown: true,
-        });
-
-        if (error) {
-            const errorMessages = error.details.map((detail) => ({
-                field: detail.path.join("."),
-                message: detail.message,
-            }));
-
-            return next({
-                status: "error",
-                statusCode: 400,
-                message: "พารามิเตอร์ที่ส่งมาไม่ถูกต้อง",
-                errors: errorMessages,
-                location: "validation middleware",
-            });
-        }
-
-        req.params = value;
-        next();
-    };
-};
-
 // Export middleware functions
 module.exports = {
-    validate,
-    validateParams,
     validateCreateUser: validate(createUserSchema),
     validateLogin: validate(loginSchema),
     validateRegister: validate(registerSchema),
     validateUpdateUser: validate(updateUserSchema),
-    validateIdParam: validateParams(validateIdParam),
 };

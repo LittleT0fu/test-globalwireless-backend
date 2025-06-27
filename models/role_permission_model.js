@@ -14,6 +14,8 @@ const permissionModel = require("./permission_model");
  * @property {number} permission_id - รหัสสิทธิ์
  */
 
+const tableName = "roles_permissions";
+
 const RolePermissionModel = {
     // สร้างความสัมพันธ์ระหว่างบทบาทและสิทธิ์
     create: async (data) => {
@@ -21,20 +23,20 @@ const RolePermissionModel = {
             throw new Error("Missing required fields");
         }
 
-        return prisma.role_permission.create({
+        return prisma[tableName].create({
             data,
         });
     },
 
     // ค้นหาสิทธิ์ของบทบาท
     findPermissionsByRoleId: async (role_id) => {
-        return prisma.role_permission.findMany({
+        return prisma[tableName].findMany({
             where: { role_id },
             select: {
                 id: true,
                 role_id: true,
                 permission_id: true,
-                permission: {
+                permissions: {
                     select: {
                         id: true,
                         name: true,
@@ -46,7 +48,7 @@ const RolePermissionModel = {
 
     // ลบความสัมพันธ์ระหว่างบทบาทและสิทธิ์
     delete: async (id) => {
-        return prisma.role_permission.delete({
+        return prisma[tableName].delete({
             where: { id },
         });
     },
@@ -58,16 +60,13 @@ const RolePermissionModel = {
         if (!role) {
             throw new Error("Role not found");
         }
-        console.log(role);
 
         // 2. ค้นหาสิทธิ์ทั้งหมดของบทบาทนั้น
         const rolePermissions =
             await RolePermissionModel.findPermissionsByRoleId(role.id);
 
-        console.log(rolePermissions);
-
         // 3. แปลงผลลัพธ์ให้ได้เฉพาะชื่อสิทธิ์
-        return rolePermissions.map((rp) => rp.permission.name);
+        return rolePermissions.map((rp) => rp.permissions.name);
     },
 };
 

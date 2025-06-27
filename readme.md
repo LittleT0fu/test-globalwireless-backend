@@ -37,6 +37,8 @@ Backend API สำหรับ GlobalWireless Project
 
 #### 1. รันผ่าน Docker (recommend)
 
+เปิดโปรแกรม Doker Desktop
+
 ```bash
 # ! require .env file and value
 
@@ -142,9 +144,10 @@ npm start
 
 4. ถ้าเจอปัญหาเกี่ยวกับ Docker:
     - ตรวจสอบว่า Docker Desktop ทำงานอยู่
-    - ลองรัน `docker system prune` เพื่อลบข้อมูลที่ไม่ใช้
     - ตรวจสอบว่า ports 3000, 3306, 8080 ไม่ถูกใช้งาน
     - ตรวจสอบดูว่าได้สร้างไฟล์ .env และใส่ข้อมูลแล้ว
+    - ตรวจสอบว่าได้เปิดโปรแกรม Docker Desktop แล้วหรือยัง
+    - ลองรัน `docker system prune` เพื่อลบข้อมูลที่ไม่ใช้
 
 ### User Routes
 

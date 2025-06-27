@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 // get all users
 //@route GET /users
 //@access Public
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
         // get all users from database
         const users = await userModel.getAll();
@@ -39,7 +39,7 @@ exports.getAllUsers = async (req, res) => {
 // create user
 //@route POST /users
 //@access Admin
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res, next) => {
     try {
         // get value from request
         const { name, email, password, role } = req.body;
@@ -94,7 +94,7 @@ exports.createUser = async (req, res) => {
 // create user
 //@route POST /users/register
 //@access Public
-exports.createUserPublic = async (req, res) => {
+exports.createUserPublic = async (req, res, next) => {
     try {
         // get value from request
         const { name, email, password } = req.body;
@@ -148,10 +148,10 @@ exports.createUserPublic = async (req, res) => {
 // update user
 //@route PATCH /users/:id
 //@access Public
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
     try {
         // get value from request
-        const { id } = req.params;
+        const id = Number(req.params.id);
         const { name, email, role } = req.body;
 
         // check user exist on database
@@ -228,11 +228,11 @@ exports.updateUser = async (req, res) => {
 // delete user
 //@route DELETE /users/:id
 //@access Public
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
     try {
         //  get value from request
-        const { id } = req.params;
-        const { user } = req.user;
+        const id = Number(req.params.id);
+        const user = req.user;
 
         // check id is number
         if (isNaN(id)) {
@@ -262,6 +262,7 @@ exports.deleteUser = async (req, res) => {
             });
         }
 
+        console.log(user);
         // delete user
         const deletedUser = await userModel.delete(id);
 
@@ -290,7 +291,7 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -340,7 +341,7 @@ exports.login = async (req, res) => {
             await rolePermissionModel.findPermissionsByRoleId(role.id);
 
         // get user permission name
-        const userPermission = rolePermissions.map((rp) => rp.permission.name);
+        const userPermission = rolePermissions.map((rp) => rp.permissions.name);
 
         // create token
         const token = signToken({ id: user.id });

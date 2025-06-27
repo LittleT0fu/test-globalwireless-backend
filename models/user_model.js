@@ -12,6 +12,8 @@ const prisma = new PrismaClient();
  * @property {string} role - บทบาทของผู้ใช้งาน
  */
 
+const tableName = "users";
+
 const userModel = {
     create: async (data) => {
         // ตรวจสอบว่ามีข้อมูลที่จำเป็นครบหรือไม่
@@ -24,13 +26,13 @@ const userModel = {
             role: data.role || "user",
         };
 
-        return prisma.users.create({
+        return prisma[tableName].create({
             data: userData,
         });
     },
 
     getAll: async () => {
-        return prisma.users.findMany({
+        return prisma[tableName].findMany({
             select: {
                 id: true,
                 name: true,
@@ -41,27 +43,29 @@ const userModel = {
     },
 
     findById: async (id) => {
-        return prisma.users.findUnique({
+        return prisma[tableName].findUnique({
             where: { id },
         });
     },
 
     findByEmail: async (email) => {
-        return prisma.users.findUnique({
+        return prisma[tableName].findUnique({
             where: { email },
         });
     },
 
     update: async (id, data) => {
-        return prisma.users.update({
+        return prisma[tableName].update({
             where: { id },
             data,
         });
     },
 
     delete: async (id) => {
-        return prisma.users.delete({
-            where: { id },
+        return prisma[tableName].delete({
+            where: {
+                id: Number(id), // แปลง id เป็นตัวเลข
+            },
         });
     },
 };

@@ -13,6 +13,8 @@ const prisma = new PrismaClient();
  * @property {boolean} isSuccess - สถานะการเข้าสู่ระบบสำเร็จหรือไม่
  */
 
+const tableName = "login_log";
+
 const loginLogModel = {
     create: async (data) => {
         // ตรวจสอบว่ามีข้อมูลที่จำเป็นครบหรือไม่
@@ -24,18 +26,18 @@ const loginLogModel = {
             status: data.status,
             ip_address: data.req.ip,
             user_agent: data.req.headers["user-agent"],
-            ...(data.user_id && { user: { connect: { id: data.user_id } } }),
+            ...(data.user_id && { users: { connect: { id: data.user_id } } }),
         };
 
-        return prisma.login_log.create({
+        return prisma[tableName].create({
             data: logData,
         });
     },
 
     getAll: async () => {
-        return prisma.login_log.findMany({
+        return prisma[tableName].findMany({
             include: {
-                user: {
+                users: {
                     select: {
                         id: true,
                         name: true,
@@ -47,10 +49,10 @@ const loginLogModel = {
     },
 
     findByUserId: async (userId) => {
-        return prisma.login_log.findMany({
+        return prisma[tableName].findMany({
             where: { userId },
             include: {
-                user: {
+                users: {
                     select: {
                         id: true,
                         name: true,
@@ -65,10 +67,10 @@ const loginLogModel = {
     },
 
     getRecentLogs: async (limit = 10) => {
-        return prisma.login_log.findMany({
+        return prisma[tableName].findMany({
             take: limit,
             include: {
-                user: {
+                users: {
                     select: {
                         id: true,
                         name: true,
