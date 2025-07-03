@@ -69,7 +69,13 @@ npm run docker:reset
 # ติดตั้ง package
 
 ```bash
-npm install
+npm clean install
+```
+
+หรือ
+
+```bash
+npm ci
 ```
 
 เปิด mamp หรือ mysql server ก่อน

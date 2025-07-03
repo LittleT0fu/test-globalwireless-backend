@@ -25,9 +25,9 @@ const errorHandler = (err, req, res, next) => {
     }
 
     // ส่ง response กลับไปยัง client
-    res.status(statusCode).json({
+    res.status(Number(statusCode)).json({
         success: false,
-        statusCode: statusCode,
+        statusCode: Number(statusCode),
         message: message,
         // เพิ่มเติมสำหรับ error object ที่ custom
         error: err.error || undefined,
